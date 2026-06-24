@@ -354,14 +354,22 @@ CREATE TABLE IF NOT EXISTS conversation_metadata (
     user_id VARCHAR(200) REFERENCES users(id) ON DELETE SET NULL,
     client_id TEXT,
     title TEXT,
+    share_token UUID UNIQUE,
+    share_enabled BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    shared_at TIMESTAMP,
     last_message_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     archi_version VARCHAR(50)
 );
 
 CREATE INDEX IF NOT EXISTS idx_conv_meta_user ON conversation_metadata(user_id);
 CREATE INDEX IF NOT EXISTS idx_conv_meta_client ON conversation_metadata(client_id);
+CREATE INDEX IF NOT EXISTS idx_conv_meta_share_token ON conversation_metadata(share_token) WHERE share_token IS NOT NULL;
 
+ALTER TABLE conversation_metadata   
+ADD COLUMN share_token UUID UNIQUE,  
+ADD COLUMN share_enabled BOOLEAN DEFAULT FALSE,  
+ADD COLUMN shared_at TIMESTAMP;
 -- Add FK to conversation_doc_overrides now that conversation_metadata exists
 DO $$
 BEGIN
