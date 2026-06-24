@@ -131,6 +131,25 @@ DELETE FROM conversation_metadata
 WHERE conversation_id = %s AND client_id = %s;
 """
 
+SQL_GENERATE_SHARE_TOKEN = """  
+UPDATE conversation_metadata  
+SET share_token = %s, share_enabled = TRUE, shared_at = NOW()  
+WHERE conversation_id = %s AND client_id = %s  
+RETURNING share_token;  
+"""  
+  
+SQL_GET_CONVERSATION_BY_SHARE_TOKEN = """  
+SELECT conversation_id, title, created_at, last_message_at  
+FROM conversation_metadata  
+WHERE share_token = %s AND share_enabled = TRUE;  
+"""  
+  
+SQL_DISABLE_SHARE = """  
+UPDATE conversation_metadata  
+SET share_enabled = FALSE, share_token = NULL  
+WHERE conversation_id = %s AND client_id = %s;  
+"""
+
 # User-ID-based variants (used when the user is authenticated)
 # Each query also falls back to client_id so that conversations created before
 # user_id was populated remain accessible.
